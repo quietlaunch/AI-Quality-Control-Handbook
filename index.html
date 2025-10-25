@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Quality Control Handbook</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary: #1A237E; --secondary: #FFFFFF; --accent: #26A69A; --text-light: #E8E8E8; --border: #333; }
+        body { background-color: var(--primary); color: var(--secondary); font-family: 'Inter', sans-serif; line-height: 1.6; font-size: 16px; }
+        header { position: fixed; top: 0; left: 0; right: 0; background: var(--primary); border-bottom: 2px solid var(--accent); padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
+        .logo { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+        .sticky-btn { background: var(--accent); color: var(--primary); border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem; text-decoration: none; display: inline-block; transition: background 0.3s; }
+        .sticky-btn:hover { background: #1F9C88; }
+        .gate-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(26, 35, 126, 0.98); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; padding: 2rem; text-align: center; }
+        .gate-overlay.hidden { display: none; }
+        .gate-content h1 { font-family: 'Montserrat', sans-serif; font-size: 2rem; margin-bottom: 1rem; color: var(--accent); }
+        .gate-content p { font-size: 1.1rem; margin-bottom: 2rem; max-width: 600px; }
+        .share-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-top: 2rem; }
+        .share-btn { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent); background: transparent; color: var(--accent); font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .share-btn:hover { background: var(--accent); color: var(--primary); }
+        .share-label { display: block; margin-top: 1.5rem; font-size: 0.95rem; color: var(--text-light); }
+        main { margin-top: 80px; padding: 2rem 1.5rem; max-width: 60ch; margin-left: auto; margin-right: auto; }
+        .progress-bar { position: fixed; top: 70px; left: 0; height: 3px; background: var(--accent); width: 0%; transition: width 0.1s linear; z-index: 999; }
+        nav.toc { background: rgba(38, 166, 154, 0.1); border: 1px solid var(--accent); border-radius: 4px; padding: 1.5rem; margin-bottom: 2rem; }
+        nav.toc h2 { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; margin-bottom: 1rem; color: var(--accent); }
+        nav.toc ul { list-style: none; }
+        nav.toc li { margin: 0.5rem 0; }
+        nav.toc a { color: var(--accent); text-decoration: none; transition: color 0.3s; }
+        nav.toc a:hover { color: var(--secondary); text-decoration: underline; }
+        h1 { font-family: 'Montserrat', sans-serif; font-size: 2rem; margin: 2rem 0 1rem 0; color: var(--accent); }
+        h2 { font-family: 'Montserrat', sans-serif; font-size: 1.5rem; margin: 1.8rem 0 0.8rem 0; color: var(--accent); }
+        h3 { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; margin: 1.5rem 0 0.6rem 0; color: var(--text-light); }
+        p { margin-bottom: 1rem; }
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1rem; }
+        li { margin-bottom: 0.5rem; }
+        strong { color: var(--accent); font-weight: 600; }
+        em { font-style: italic; color: var(--text-light); }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
+        th { background: rgba(38, 166, 154, 0.2); border: 1px solid var(--accent); padding: 0.75rem; text-align: left; font-weight: 600; color: var(--accent); }
+        td { border: 1px solid var(--border); padding: 0.75rem; }
+        tr:nth-child(even) { background: rgba(38, 166, 154, 0.05); }
+        code { background: rgba(0, 0, 0, 0.3); padding: 0.2rem 0.4rem; border-radius: 3px; font-family: monospace; color: var(--accent); }
+        pre { background: rgba(0, 0, 0, 0.3); border-left: 3px solid var(--accent); padding: 1rem; overflow-x: auto; margin: 1rem 0; border-radius: 4px; }
+        blockquote { border-left: 3px solid var(--accent); padding-left: 1rem; margin: 1rem 0; color: var(--text-light); font-style: italic; }
+        hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+        footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border); margin-top: 3rem; font-size: 0.9rem; color: var(--text-light); }
+        @media (max-width: 768px) {
+            header { padding: 0.75rem 1rem; }
+            .logo { font-size: 1rem; }
+            .sticky-btn { padding: 0.6rem 1rem; font-size: 0.85rem; }
+            main { padding: 1.5rem 1rem; margin-top: 70px; }
+            h1 { font-size: 1.6rem; }
+            h2 { font-size: 1.2rem; }
+            h3 { font-size: 1rem; }
+            .share-btn { width: 50px; height: 50px; font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Quiet Launch</div>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSe6g-s2dqZIoIH8ItXPjt0Oeca8cKdikmR6I4FzJ0bId25_CQ/viewform?usp=header" class="sticky-btn">Free Prompting Playbook <i class="fa-solid fa-download"></i></a>
+    </header>
+
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div class="gate-overlay" id="gateOverlay">
+        <div class="gate-content">
+            <h1>Unlock the Full Handbook</h1>
+            <p>Help Quiet Launch continue to offer free resources. Share this resource with like-minded people to view the complete guide.</p>
+            <div class="share-buttons">
+                <button class="share-btn" onclick="unlockContent(); window.open('https://reddit.com', '_blank');" title="Share on Reddit">
+                    <i class="fa-brands fa-reddit"></i>
+                </button>
+                <button class="share-btn" onclick="unlockContent(); window.open('https://discord.com', '_blank');" title="Share on Discord">
+                    <i class="fa-brands fa-discord"></i>
+                </button>
+                <button class="share-btn" onclick="unlockContent(); window.open('https://x.com', '_blank');" title="Share on X">
+                    <i class="fa-solid fa-square-xmark"></i>
+                    <!-- <i class="fa-brands fa-square-x-twitter"></i> -->
+                </button>
+                <button class="share-btn" onclick="unlockContent(); window.open('https://instagram.com', '_blank');" title="Share on Instagram">
+                    <i class="fa-brands fa-square-instagram"></i>
+                </button>
+                <button class="share-btn" onclick="unlockContent(); window.open('https://facebook.com', '_blank');" title="Share on Facebook">
+                    <i class="fa-brands fa-facebook"></i>
+                </button>
+            </div>
+            <span class="share-label">Click any button above to share</span>
+        </div>
+    </div>
+
+    <main>
+        <nav class="toc">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#intro">Introduction</a></li>
+                <li><a href="#quickstart">Quick Start</a></li>
+                <li><a href="#part1">Part 1: The Problem</a></li>
+                <li><a href="#part2">Part 2: The Solution</a></li>
+                <li><a href="#part3">Part 3: Real-World Application</a></li>
+                <li><a href="#part4">Part 4: Advanced Strategy</a></li>
+                <li><a href="#part5">Part 5: The Toolkit</a></li>
+                <li><a href="#part6">Part 6: Conclusion & CTA</a></li>
+                <li><a href="#disclaimer">Disclaimer</a></li>
+            </ul>
+        </nav>
+
+        <section id="intro">
+            <h1>The AI Quality Control Handbook</h1>
+            <h2>A Solopreneur's Guide to Catching AI Flaws Before They Cost You</h2>
+            <p>You're using AI. It's fast. It saves hours.</p>
+            <p>But sometimes it sends you a proposal that looks professional until your client asks why it doesn't address their stated constraint. Sometimes, it cites statistics that don't exist. Sometimes, it sounds like a corporate robot instead of a solopreneur who actually cares.</p>
+            <p>Those moments cost you not just time but money, credibility and client relationships.</p>
+            <p>This handbook teaches you a system to catch those moments before they happen. Not through hours of manual review or hiring someone to QA your work. Through a 2-3 minute quality gate that uses AI's own reasoning against its blind spots.</p>
+            <p>It's called <strong>Directed Self-Critique (DSC)</strong>. It works and it costs nothing but discipline.</p>
+        </section>
+
+        <section id="quickstart">
+            <h2>Quick Start</h2>
+            <p><strong>If you have 5 minutes:</strong> Skip to Part 5. Copy the Master Prompt. Try it on one piece of work you generated today. You'll know immediately if it works for you.</p>
+            <p><strong>If you have 30 minutes:</strong> Read Part 1 (The 6 Critical Flaws) and Part 3 (one real-world walkthrough). Then copy the Master Prompt and try it.</p>
+            <p><strong>If you have 2 hours:</strong> Read the entire handbook. You'll understand the system deeply and be ready to implement it across your business.</p>
+        </section>
+
+        <hr>
+
+        <section id="part1">
+            <h1>Part 1: The Problem</h1>
+
+            <h2>Introduction: The Solopreneur's Nightmare</h2>
+            <p>It was Tuesday morning when Sarah realized she'd nearly lost her biggest client to an AI she trusted completely.</p>
+            <p>Sarah runs a solo VA business. She'd spent the last two weeks supporting a local real estate agent, worth $18K annually. The client needed a marketing email sequence for new property listings. She generated a detailed brief, fed it to ChatGPT with clear instructions, and got a 5-email sequence in 15 minutes.</p>
+            <p>She skimmed it. It looked professional. She sent it Wednesday.</p>
+            <p>Thursday morning, the client called. "Sarah, this completely misses the point. You're talking about 'investment opportunities' and 'market trends.' My clients are first-time homebuyers who are scared and confused. They need reassurance, not sophistication. Did you read what I told you about my audience?"</p>
+            <p>She had. The AI had zeroed in on "real estate marketing" and built generic copy. It missed that this agent specialized in anxious first-time buyers. The emails were technically well-written and completely wrong.</p>
+            <p>Two days of relationship repair later, Sarah kept the client. But that moment cost her credibility, margin, and sleep.</p>
+
+            <h2>The Paradox</h2>
+            <p>Here's the paradox: AI is your cheapest employee. It works instantly. It never gets sick. For someone running a business alone, AI is the difference between capacity and burnout.</p>
+            <p>Conversely, AI is your biggest business risk.</p>
+            <p>One hallucination. One missed strategic nuance. One tone-deaf email. For solopreneurs, there's no QA department to catch it. Your reputation lives or dies on output quality, and you can't afford to hire someone to validate AI work before it leaves your desk.</p>
+            <p><strong>There is a third option.</strong></p>
+            <p>You can become your own AI Quality Director through a systematic, repeatable process that takes 2-3 minutes per output. It doesn't require being an AI expert. It requires a clear framework for spotting where AI gets it wrong, <em>why</em> it gets it wrong, and exactly how to fix it before your client ever sees it.</p>
+
+            <h2>Chapter 1: The Core Patterns in AI Output</h2>
+
+            <h3>Quick Reference: The 6 Critical Flaws</h3>
+            <table>
+                <tr>
+                    <th>Flaw</th>
+                    <th>Risk for Solopreneur</th>
+                </tr>
+                <tr>
+                    <td><strong>Tunnel Vision</strong></td>
+                    <td>Misses the big picture; ignores the client's real constraint</td>
+                </tr>
+                <tr>
+                    <td><strong>Over-Assumption</strong></td>
+                    <td>Makes false promises based on invented context</td>
+                </tr>
+                <tr>
+                    <td><strong>Abstraction Overload</strong></td>
+                    <td>Vague, unusable outputs that sound smart but mean nothing</td>
+                </tr>
+                <tr>
+                    <td><strong>Unverified Information</strong></td>
+                    <td>Invented facts, outdated data, and statistics that cost your credibility</td>
+                </tr>
+                <tr>
+                    <td><strong>Confirmation Bias Sensitivity</strong></td>
+                    <td>Echoes your bad assumptions without challenging them</td>
+                </tr>
+                <tr>
+                    <td><strong>Misalignment with Strategic Context</strong></td>
+                    <td>Off-brand, off-goal, doesn't serve your actual business</td>
+                </tr>
+            </table>
+
+            <h3>Flaw 1: Tunnel Vision</h3>
+            <p><strong>Definition:</strong> AI latches onto the most obvious keyword or theme and builds everything around it, ignoring the deeper context you provided.</p>
+            <p><strong>Why It Happens:</strong> Language models look for dominant patterns. When it sees "real estate," it generates real estate marketing. The broader context gets ignored.</p>
+            <p><strong>Do This:</strong> When you give AI a task, explicitly state what you're <em>not</em> trying to do. AI needs negative constraints as much as positive direction.</p>
+
+            <h3>Flaw 2: Over-Assumption</h3>
+            <p><strong>Definition:</strong> AI fills in gaps with plausible-sounding guesses about your client, your business, or the situation and presents them as facts.</p>
+            <p><strong>Do This:</strong> For any output involving numbers, timelines, or business specifics, provide exact parameters and tell AI: "Do NOT assume anything I haven't explicitly stated."</p>
+
+            <h3>Flaw 3: Abstraction Overload</h3>
+            <p><strong>Definition:</strong> AI generates advice that's technically correct but so generic it's useless.</p>
+            <p><strong>Do This:</strong> Never accept "optimize," "enhance," "leverage," or "implement" as action items. Demand specific tasks with time estimates.</p>
+
+            <h3>Flaw 4: Unverified Information</h3>
+            <p><strong>Definition:</strong> AI generates statistics, facts, or data that sound authoritative but are completely made up.</p>
+            <p><strong>Do This:</strong> If AI cites a specific study, publication, or statistic, spend 10 minutes verifying it exists before you use it. If you can't find it, delete it.</p>
+
+            <h3>Flaw 5: Confirmation Bias Sensitivity</h3>
+            <p><strong>Definition:</strong> AI takes whatever you believe and builds a case for it without questioning whether your belief is actually correct.</p>
+            <p><strong>Do This:</strong> When you've made a decision and want AI's help executing it, first ask AI to challenge the decision. Make stress-testing part of the process.</p>
+
+            <h3>Flaw 6: Misalignment with Strategic Context</h3>
+            <p><strong>Definition:</strong> AI generates perfectly logical advice that moves you in the wrong direction because it doesn't understand your positioning or constraints.</p>
+            <p><strong>Do This:</strong> Before asking AI for business advice, explicitly state: "My positioning is..." "My competitive advantage is..." "My business priority right now is..."</p>
+
+            <h2>Interim Summary</h2>
+            <p>You've now seen the six patterns that kill solopreneur AI work. They have names. They have triggers. They have consequences.</p>
+            <p><strong>All of them are fixable with a clear, repeatable framework.</strong></p>
+        </section>
+
+        <hr>
+
+        <section id="part2">
+            <h1>Part 2: The Solution</h1>
+
+            <h2>Introduction: Directed Self-Critique</h2>
+            <p>You already know AI is fast, but fast isn't the same as flawless. The errors it makes—the subtle ones that pass spellcheck but cost you a client—are rooted in its fundamental nature. It guesses based on patterns. It doesn't know your business.</p>
+            <p>The solution is <strong>Directed Self-Critique (DSC)</strong>.</p>
+            <p>Here's how it works: You feed the AI's draft to the AI itself, along with a structured Master Prompt that forces it to judge its own work against eight critical business standards. The AI becomes its own harshest critic.</p>
+
+            <h2>Chapter 2: The 8 Quality Dimensions</h2>
+            <table>
+                <tr>
+                    <th>Dimension</th>
+                    <th>Core Question</th>
+                    <th>Impact</th>
+                </tr>
+                <tr>
+                    <td><strong>Factual Grounding</strong></td>
+                    <td>Is every fact verifiable?</td>
+                    <td>Loss of client trust</td>
+                </tr>
+                <tr>
+                    <td><strong>Strategic Misalignment</strong></td>
+                    <td>Does this respect my stated goals?</td>
+                    <td>Wasted time on irrelevant content</td>
+                </tr>
+                <tr>
+                    <td><strong>Tunnel Vision</strong></td>
+                    <td>Does this consider risks?</td>
+                    <td>Unrealistic client expectations</td>
+                </tr>
+                <tr>
+                    <td><strong>Over-assumption</strong></td>
+                    <td>Does this assume unexplained context?</td>
+                    <td>Customer confusion</td>
+                </tr>
+                <tr>
+                    <td><strong>Logical Coherence</strong></td>
+                    <td>Do conclusions follow from premises?</td>
+                    <td>Work perceived as incoherent</td>
+                </tr>
+                <tr>
+                    <td><strong>Confirmation Bias</strong></td>
+                    <td>Did you amplify your own biases?</td>
+                    <td>Investing in doomed strategy</td>
+                </tr>
+                <tr>
+                    <td><strong>Tone and Persona</strong></td>
+                    <td>Does voice match the audience?</td>
+                    <td>Damaged client relationship</td>
+                </tr>
+                <tr>
+                    <td><strong>Clarity & Scannability</strong></td>
+                    <td>Is language direct?</td>
+                    <td>Perceived low quality</td>
+                </tr>
+            </table>
+
+            <h2>The Three-Step Quality Process</h2>
+            <p><strong>Step 1: Generate</strong> – You prompt the AI with your task. Nothing changes.</p>
+            <p><em>Time: Variable</em></p>
+
+            <p><strong>Step 2: Paste & Evaluate</strong> – Copy the AI's draft + the Master Prompt into a new message. The AI critiques itself against the eight dimensions.</p>
+            <p><em>Time: 2-3 minutes</em></p>
+
+            <p><strong>Step 3: Revise</strong> – Read the critique. Revise based on high-priority flags. Ship.</p>
+            <p><em>Time: 2-5 minutes</em></p>
+
+            <p><strong>Total Quality Gate Time: 5-10 minutes</strong> for a complete proposal or complex deliverable.</p>
+        </section>
+
+        <hr>
+
+        <section id="part3">
+            <h1>Part 3: Real-World Application</h1>
+
+            <h2>Walkthrough A: The Generic Service Proposal</h2>
+            <p><strong>Scenario:</strong> You're a freelance web designer. A small landscaping company owner, Mike, says: "We paid $4K upfront to a designer who disappeared. We're nervous about getting burned again."</p>
+            <p><strong>What DSC Flagged:</strong> Your proposal asks for 50% upfront and says nothing about preventing the same problem. You ignored his stated fear. Generic template, no acknowledgment of his past experience. You assumed 4-6 weeks and 50% deposit without discussing his risk tolerance.</p>
+            <p><strong>The Lesson:</strong> AI cannot remember your client's emotional state or past experiences. Before sending any proposal, ask yourself: "What fear, concern, or constraint did the client explicitly mention?" Search your proposal for evidence you addressed it. If missing, rewrite.</p>
+
+            <h2>Walkthrough B: The Research Summary with Fake Stats</h2>
+            <p><strong>Scenario:</strong> You're a freelance writer. A blog hires you to write about email marketing benefits. You ask AI to provide supporting statistics.</p>
+            <p><strong>What DSC Flagged:</strong> Every statistic is fabricated. The "Small Business Marketing Institute" doesn't exist. The "LocalBiz Research Group" doesn't exist. The numbers are invented.</p>
+            <p><strong>The Lesson:</strong> AI will confidently cite statistics and studies that don't exist. This is how language models work—they generate plausible-sounding text based on patterns, not real data.</p>
+            <p><strong>Do This:</strong> Never include a statistic, study, or source in client work unless you've personally verified it exists. If you can't find it in 10 minutes, delete it.</p>
+
+            <h2>Walkthrough C: The Tone-Deaf Support Email</h2>
+            <p><strong>Scenario:</strong> You run an online course. Jessica, a loyal 8-month student, emails frustrated: "I can't access Module 4. I've been looking forward to this all week. Can you please fix this today?"</p>
+            <p><strong>What DSC Flagged:</strong> The response reads like corporate support. "Ticket #0847-TECH," "our technical team," "24-48 business hours." You're a solo creator, not a company. Jessica is loyal and you just sent her a robot response.</p>
+            <p><strong>The Lesson:</strong> AI defaults to corporate tone because most support emails in its training data are corporate. But your advantage as a solo operator is that you're NOT corporate. You're personal, fast, and you care.</p>
+            <p><strong>Do This:</strong> Before sending any customer email, read it out loud. Does it sound like you're talking to a person, or does it sound like a call center script? If it's the latter, rewrite it in your actual voice.</p>
+        </section>
+
+        <hr>
+
+        <section id="part4">
+            <h1>Part 4: Advanced Strategy</h1>
+
+            <h2>Introduction: When Single AI Critique Isn't Enough</h2>
+            <p>You've learned the system. You run DSC on every important output. You catch obvious flaws before they leave your desk.</p>
+            <p>But there's a tier above this. When your biggest project this quarter is on the line. When you're pitching a potential retainer client. When the consequences of a single flaw would seriously damage the relationship.</p>
+            <p>For those moments, there's the <strong>Two-AI Quality System</strong>.</p>
+
+            <h2>The Problem With Single-AI Critique</h2>
+            <p>Directed Self-Critique works because it forces one AI to become its own critic. But there's a limitation: the AI that writes the draft is also the AI critiquing it. It has biases baked into its generation.</p>
+            <p>If an AI assumes while writing, it will often accept that assumption while critiquing. If it fell into a pattern, it won't notice the pattern because it <em>created</em> the pattern.</p>
+            <p>The two flaws that single-AI critique misses most often:</p>
+            <ul>
+                <li><strong>Confirmation Bias Sensitivity</strong> – The writing AI assumes its logic is sound. The critiquing version doesn't challenge the fundamental premise.</li>
+                <li><strong>Tunnel Vision</strong> – The writing AI has locked onto one solution. The critique from the same AI doesn't explore alternatives.</li>
+            </ul>
+
+            <h2>How the Two-AI System Works</h2>
+            <p><strong>AI Writer</strong> (e.g., Claude): Generates the original draft using your business context.</p>
+            <p><strong>AI Evaluator</strong> (e.g., ChatGPT, Grok): Receives the draft <em>without</em> the original context. It sees only the final output and evaluates it as a cold reader would.</p>
+            <p><strong>Key difference:</strong> The Evaluator doesn't know what you asked for. It doesn't know your constraints. It only sees the words on the page. This forces it to identify problems that assume too much context or miss implications.</p>
+
+            <h2>When to Use the Two-AI System</h2>
+            <p><strong>Use it when:</strong> The project is of significant monetary value, you're pitching a potential retainer client, the output contains claims that could be fact-checked, or the consequences of a single flaw would seriously damage the relationship.</p>
+            <p><strong>Don't use it for:</strong> Internal drafts, routine client communications, time-sensitive outputs where 10 minutes kills your timeline, or low-stakes deliverables.</p>
+            <p><strong>Time investment:</strong> 8-12 minutes total</p>
+            <p><strong>ROI:</strong> If this prevents losing one $5K+ project per year, you've saved 100+ hours of the time it takes to replace that revenue.</p>
+        </section>
+
+        <hr>
+
+        <section id="part5">
+            <h1>Part 5: The Toolkit & Execution</h1>
+
+            <h2>The Master Prompt: AI Quality Control</h2>
+            <p>Copy and paste this into your AI of choice immediately after generating a draft that matters:</p>
+
+            <pre><code>You are an AI trained to evaluate a response for quality, relevance, and alignment. Analyze against these eight dimensions:
+
+1. Tunnel Vision – Did the AI focus excessively on one solution while ignoring alternatives or risks?
+
+2. Over-assumption – Did the AI assume facts, prior knowledge, or context that isn't explicitly stated?
+
+3. Abstraction Overload – Did the AI use generic language that reduces practical relevance?
+
+4. Unverified Information – Are all key facts, statistics, and references verifiable? Or do claims lack support?
+
+5. Logical Coherence – Is the argument flow clear? Do conclusions follow from stated premises?
+
+6. Confirmation Bias Sensitivity – Did the AI simply amplify assumptions without testing them? Are counter-arguments surfaced?
+
+7. Misalignment with Strategic Context – Does this respect the stated business goal, audience, constraints, and deeper intent?
+
+8. Clarity & Conciseness – Is the language direct, specific, and formatted for quick scanning?
+
+For each dimension, provide:
+• Assessment: Pass / Flag
+• Example: Quote the specific part
+• Impact: How this affects usefulness or risk
+• Improvement Suggestion: How to rewrite it
+
+Finally, provide:
+• Risk Summary: The single biggest issue before sending
+• Overall Strengths: What does this do well?
+• Critical Revisions: High-priority, medium-priority, and low-priority fixes</code></pre>
+
+            <h2>The Quick Start: 3-Minute Workflow</h2>
+            <ol>
+                <li><strong>Generate</strong> (1 min) – Ask your AI to produce your output</li>
+                <li><strong>Paste & Evaluate</strong> (1 min) – Copy the response, paste into new chat with Master Prompt</li>
+                <li><strong>Revise</strong> (1 min) – Apply improvement suggestions or ask AI to rewrite</li>
+            </ol>
+
+            <h2>Workflow Templates</h2>
+            <p><strong>Consultant Workflow: Report → Proposal → Follow-up Email</strong></p>
+            <ul>
+                <li>Stage 1: Client Report – Master Prompt focus: Factual grounding, abstraction overload</li>
+                <li>Stage 2: Proposal – Master Prompt focus: Strategic alignment, clarity</li>
+                <li>Stage 3: Follow-up Email – Master Prompt focus: Tone, brevity, next-step clarity</li>
+            </ul>
+
+            <p><strong>Founder Workflow: Business Plan → Pitch Deck → Investor Email</strong></p>
+            <ul>
+                <li>Stage 1: Business Plan – Master Prompt focus: Catch confirmation bias in your assumptions</li>
+                <li>Stage 2: Pitch Deck Slides – Master Prompt focus: Clarity, abstraction overload</li>
+                <li>Stage 3: Investor Email – Cold Read Critique focus: How investor sees it cold</li>
+            </ul>
+
+            <p><strong>Content Creator Workflow: Blog Post → Social Copy → Newsletter</strong></p>
+            <ul>
+                <li>Stage 1: Blog Post – Master Prompt focus: Factual accuracy before publishing</li>
+                <li>Stage 2: Social Media Copy – Master Prompt focus: Over-assumption (does this make sense without context?)</li>
+                <li>Stage 3: Newsletter – Master Prompt focus: Tone, coherence, clarity</li>
+            </ul>
+
+            <h2>Tool Stack: What to Use</h2>
+            <table>
+                <tr>
+                    <th>Function</th>
+                    <th>Tools</th>
+                    <th>Cost</th>
+                </tr>
+                <tr>
+                    <td>Run the Prompt</td>
+                    <td>Claude (free tier) or ChatGPT (free/Plus)</td>
+                    <td>Free or $20/mo</td>
+                </tr>
+                <tr>
+                    <td>Store the Prompt</td>
+                    <td>Apple Notes, Google Keep, Notion (free)</td>
+                    <td>Free</td>
+                </tr>
+                <tr>
+                    <td>Track Results</td>
+                    <td>Google Sheets, Airtable (free tier)</td>
+                    <td>Free</td>
+                </tr>
+            </table>
+
+            <p><strong>Recommendation:</strong> Save the Master Prompt to Apple Notes or Google Keep as a pinned note. Copy and paste when you need it.</p>
+
+            <h2>The 30-Day Implementation Checklist</h2>
+            <p><strong>Week 1: Setup</strong></p>
+            <ul>
+                <li>Save Master Prompt to notes app</li>
+                <li>Test on one piece of low-stakes work</li>
+                <li>Notice what DSC caught that you would have missed</li>
+            </ul>
+
+            <p><strong>Week 2: Integration</strong></p>
+            <ul>
+                <li>Run Master Prompt on three client deliverables</li>
+                <li>Read the critiques carefully</li>
+                <li>Revise based on high-priority flags</li>
+            </ul>
+
+            <p><strong>Week 3: Two-AI Testing</strong></p>
+            <ul>
+                <li>For one high-stakes deliverable, run both Master Prompt AND a different AI</li>
+                <li>Compare the two critiques</li>
+                <li>Notice where they agree (real issues) vs. disagree (judgment calls)</li>
+            </ul>
+
+            <p><strong>Week 4: Systemization</strong></p>
+            <ul>
+                <li>Choose your workflow (Consultant / Founder / Content Creator)</li>
+                <li>Save the workflow as a checklist</li>
+                <li>Use it on all client-facing work this week</li>
+            </ul>
+
+            <p><strong>Success metric:</strong> By end of Week 4, DSC should feel automatic, not like an extra step.</p>
+        </section>
+
+        <hr>
+
+        <section id="part6">
+            <h1>Part 6: Conclusion & CTA</h1>
+
+            <h2>The Real Cost of Shipping Flawed AI Work</h2>
+            <p>Let's be honest about what you've been doing.</p>
+            <p>You've been using AI to save time and it works. You generate a proposal in 30 minutes instead of three hours. You draft a research summary in 15 minutes instead of two days. But then you read the output, you see something off.</p>
+            <p>So you edit. You rewrite. You fact-check. You spend an hour reviewing what AI generated in 15 minutes.</p>
+            <p>By the time you ship it, you've spent almost as much time reviewing as you would have creating the work from scratch.</p>
+            <p>You get the speed of AI without actually saving time. Worse, you're constantly second-guessing yourself. Is this good enough? Will the client notice?</p>
+            <p>That doubt is the real cost.</p>
+
+            <h2>What Changes Now</h2>
+            <p>You've learned a system that eliminates that doubt.</p>
+            <p><strong>Directed Self-Critique</strong> is not a hack. It's a repeatable process that takes 2-3 minutes and catches the subtle flaws that manual review misses because you're tired and your eyes have already glazed over the text.</p>
+            <p>The flaws DSC catches are the ones that actually cost you money:</p>
+            <ul>
+                <li><strong>Strategic Misalignment:</strong> Your proposal doesn't respect the client's constraints, so they never hire you. ($10K-$50K lost opportunity)</li>
+                <li><strong>Unverified Information:</strong> Your data is wrong, client fact-checks and finds nothing, credibility destroyed. (Retainer lost, reputation damaged)</li>
+                <li><strong>Tone-Deaf Output:</strong> Your support email sounds corporate instead of personal, loyal customer quietly cancels. ($1-2K annual recurring revenue lost)</li>
+                <li><strong>Tunnel Vision:</strong> Your project plan ignores risks, timeline slips, client blames you, relationship sours. (Future contracts lost)</li>
+            </ul>
+
+            <h2>Here's What Actually Changes in Your Workflow</h2>
+            <p><strong>Without Quality Control:</strong> Generate → Send → Hope</p>
+            <p>You spend 30 minutes to 2 hours generating. You glance at it. You send it. You hope nobody catches the problems.</p>
+            <p><strong>Result:</strong> 30% of your outputs have a flaw that costs you something.</p>
+
+            <p><strong>With Directed Self-Critique:</strong> Generate → Critique → Revise → Send</p>
+            <p>You generate. You paste + Master Prompt (30 seconds). AI critiques (2-3 minutes). You read critique (2-3 minutes). You revise (2-5 minutes). You send confidently.</p>
+            <p><strong>Result:</strong> 5% of your outputs have a flaw. The flaws that slip through are ones you consciously decided to accept.</p>
+
+            <h2>Success Looks Like This</h2>
+            <p><strong>Week 1-2:</strong> You catch flaws you would have missed manually. You stop second-guessing yourself after sending.</p>
+
+            <p><strong>Week 3-4:</strong> You notice fewer client revisions. You get better feedback on deliverables. You stop shipping generic, tone-deaf work.</p>
+
+            <p><strong>Week 5+:</strong> Proposals have higher close rates. Research gets fewer fact-check requests. Customer relationships deepen. You stop wasting time on revision cycles.</p>
+
+            <p><strong>The math is simple:</strong> If DSC prevents one $10K opportunity loss per quarter, it pays for itself 20x over.</p>
+
+            <h2>Your Next Step: Start Today</h2>
+            <p>Tomorrow morning, before anything else:</p>
+            <ol>
+                <li>Open your primary AI</li>
+                <li>Copy in the Master Prompt from Part 5</li>
+                <li>Find one piece of work you generated today (proposal, email, research summary, anything)</li>
+                <li>Run it through DSC</li>
+            </ol>
+
+            <p>Read the critique. You don't have to agree with all of it. Just notice what it flags.</p>
+            <p>That's the entire starting point. One critique. One piece of work. Five minutes.</p>
+            <p>If you see something that would have cost you money, you're done. You're sold on the system. Use it from now on.</p>
+
+            <h2>What You Have Now</h2>
+            <p>In this handbook:</p>
+            <ul>
+                <li><strong>The Master Prompt</strong> – Copy and paste into your AI after generating a draft. It runs the eight-dimension critique automatically.</li>
+                <li><strong>Three Real Walkthroughs</strong> – You've seen DSC work on an actual proposal, research summary, and support email.</li>
+                <li><strong>The Two-AI System</strong> – For high-stakes work, run a second critique from a different AI to catch blind spots.</li>
+                <li><strong>Three Workflow Templates</strong> – Ready-to-use processes for consultants, founders, and content creators.</li>
+                <li><strong>Tool Recommendations</strong> – Which AI systems to use, where to store prompts, how to track improvements.</li>
+                <li><strong>A 30-Day Implementation Plan</strong> – Week-by-week steps, time estimates, realistic expectations.</li>
+            </ul>
+
+            <h2>The Final Truth</h2>
+            <p>You've been burned by AI before. A hallucinated statistic. A tone-deaf email. A generic proposal. A promise you can't keep.</p>
+            <p>That's not going to stop entirely. Bad ideas will still exist. Context will still get lost. New models will have new blind spots.</p>
+            <p>But the pattern where you send something that looks good but costs you money—that pattern ends now.</p>
+            <p>DSC doesn't eliminate the problem. It changes the odds. It moves you from "hoping the flaws don't matter" to "actively hunting the flaws before they leave your desk."</p>
+            <p>For a solopreneur, that's the difference between a business that survives and one that thrives.</p>
+
+            <h2>Implementation Checklist: Before You Send Anything Today</h2>
+            <p><strong>Before sending ANY client-facing deliverable:</strong></p>
+            <ul>
+                <li>Did I generate this with AI?</li>
+                <li>Is this important to my business?</li>
+                <li>Have I run it through the Master Prompt?</li>
+                <li>Did I read the critique?</li>
+                <li>Have I revised based on high-priority flags?</li>
+                <li>Do I feel confident sending this?</li>
+            </ul>
+
+            <p><strong>For high-stakes work ($50K+ or investor pitches):</strong></p>
+            <ul>
+                <li>Have I run the Master Prompt?</li>
+                <li>Have I run a critique with a different AI?</li>
+                <li>Do the two critiques agree on main issues?</li>
+                <li>Have I revised based on both?</li>
+                <li>Am I ready to ship?</li>
+            </ul>
+
+            <h2>One Final Reminder</h2>
+            <p>Your reputation is your business. Your clients remember whether you deliver flawless work or work with problems they have to fix.</p>
+            <p>DSC is how you deliver flawless work consistently.</p>
+            <p>Not perfectly. Consistently.</p>
+            <p>And for a solopreneur, consistency is enough to win.</p>
+            <p>Now go implement this. Not tomorrow. Not next week. <strong>Today.</strong></p>
+            <p>Close this handbook. Open your AI. Take the last thing you sent a client. Paste it + the Master Prompt. Read the critique.</p>
+            <p>You'll know in two minutes whether you need this system or not.</p>
+            <p>Most of you will know you did.</p>
+            <p>And then you'll never ship unvetted work the same way again.</p>
+            <p>The system works. The question is whether you're disciplined enough to use it.</p>
+            <p>Most people aren't. But you're reading this, which means you probably are.</p>
+            <p><strong>Prove it.</strong></p>
+        </section>
+
+        <hr>
+
+        <section id="disclaimer">
+            <h1>Disclaimer</h1>
+
+            <h2>What This Handbook Is & Isn't</h2>
+            <p>This handbook teaches a systematic approach to evaluating AI-generated content. It is <strong>educational material designed to help you catch common errors and misalignments in AI outputs</strong>. It is not professional legal, medical, financial, or business advisory services. You are responsible for applying these methods to your specific context and verifying that outputs meet your professional, ethical, and business standards before using them.</p>
+            <p>Quiet Launch does not guarantee that following this handbook will prevent errors, protect you from liability, or ensure client satisfaction. The responsibility for quality assurance and final approval of any AI-generated work remains entirely with you.</p>
+
+            <h2>On the Prompt & Its Limitations</h2>
+            <p>The Master Prompt included in this handbook is a tool designed to catch errors across eight critical dimensions. <strong>However, it is not foolproof.</strong> The prompt may fail to uncover errors in edge cases, highly specialized domains, ambiguous instructions, or novel combinations of requirements that fall outside its training data.</p>
+            <p>You should not treat this prompt as a replacement for domain expertise, professional review, or your own critical judgment. Use it as one layer of quality control—not the only one. For high-stakes work (client deliverables, investor materials, legal documents, medical content), supplement this prompt with human review or subject-matter expertise appropriate to the stakes.</p>
+
+            <h2>On AI Variability</h2>
+            <p>AI outputs vary significantly across different models (Claude, ChatGPT, Gemini, etc.), versions, and even individual runs of the same model. An error the prompt catches in one model may slip through in another. Model updates, parameter changes, and algorithm shifts happen regularly.</p>
+            <p>The examples in this handbook are illustrative and reflect performance at the time of publication. They are not guarantees of consistent behavior across all models or future updates. Test the prompt thoroughly with your specific AI tools before deploying it to production workflows.</p>
+
+            <h2>Your Responsibility</h2>
+            <p>By using this handbook, you acknowledge that:</p>
+            <ul>
+                <li>You are making an informed choice to adopt this framework at your own discretion</li>
+                <li>You remain responsible for the accuracy, legality, and appropriateness of all AI-generated content you distribute or use</li>
+                <li>Quiet Launch is not liable for any errors, omissions, losses, or consequences arising from the application of this handbook or the Master Prompt</li>
+                <li>You will not hold Quiet Launch responsible for outcomes—whether positive or negative—resulting from your use of these methods</li>
+            </ul>
+
+            <p>Use this system wisely, stay skeptical, and verify critical outputs. The goal is to reduce risk, not eliminate it.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p><strong>AI Quality Control Handbook</strong> | A Solopreneur's Guide to Catching AI Flaws Before They Cost You</p>
+        <p>Last updated: October 2025 <em>(condensed format)</em></p>
+    </footer>
+
+    <script>
+        function unlockContent() {
+            const gate = document.getElementById('gateOverlay');
+            gate.classList.add('hidden');
+        }
+
+        window.addEventListener('scroll', function() {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            document.getElementById('progressBar').style.width = scrollPercent + '%';
+        });
+
+        // Smooth scroll for TOC links
+        document.querySelectorAll('nav.toc a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
