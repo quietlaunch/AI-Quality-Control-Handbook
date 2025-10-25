@@ -83,20 +83,20 @@
             <h1>Unlock the Full Handbook</h1>
             <p>Help Quiet Launch continue to offer free resources. Share this resource with like-minded people to view the complete guide.</p>
             <div class="share-buttons">
-                <button class="share-btn" onclick="unlockContent(); window.open('https://reddit.com', '_blank');" title="Share on Reddit">
+                <button class="share-btn" onclick="unlockContent(); gtag('event', 'share_click', {'platform': 'reddit'}); window.open('https://reddit.com/submit?url=${encodeURIComponent(window.location.href)}', '_blank');" title="Share on Reddit">
                     <i class="fa-brands fa-reddit"></i>
                 </button>
-                <button class="share-btn" onclick="unlockContent(); window.open('https://discord.com', '_blank');" title="Share on Discord">
+                <button class="share-btn" onclick="unlockContent(); gtag('event', 'share_click', {'platform': 'discord'}); window.open('https://discord.com/channels/@me?invite=${encodeURIComponent(window.location.href)}', '_blank');" title="Share on Discord">
                     <i class="fa-brands fa-discord"></i>
                 </button>
-                <button class="share-btn" onclick="unlockContent(); window.open('https://x.com', '_blank');" title="Share on X">
+                <button class="share-btn" onclick="unlockContent(); gtag('event', 'share_click', {'platform': 'x'}); window.open('https://x.com/intent/post?url=${encodeURIComponent(window.location.href)}', '_blank');" title="Share on X">
                     <i class="fa-solid fa-square-xmark"></i>
                     <!-- <i class="fa-brands fa-square-x-twitter"></i> -->
                 </button>
-                <button class="share-btn" onclick="unlockContent(); window.open('https://instagram.com', '_blank');" title="Share on Instagram">
+                <button class="share-btn" onclick="unlockContent(); gtag('event', 'share_click', {'platform': 'instagram'}); window.open('https://www.instagram.com/create/story/?url=${encodeURIComponent(window.location.href)}', '_blank');" title="Share on Instagram">
                     <i class="fa-brands fa-square-instagram"></i>
                 </button>
-                <button class="share-btn" onclick="unlockContent(); window.open('https://facebook.com', '_blank');" title="Share on Facebook">
+                <button class="share-btn" onclick="unlockContent(); gtag('event', 'share_click', {'platform': 'facebook'}); window.open('https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}', '_blank');" title="Share on Facebook">
                     <i class="fa-brands fa-facebook"></i>
                 </button>
             </div>
